@@ -44,6 +44,10 @@ For each store in the set:
 
 **If product not found** → skip store, note in report.
 
+**If zero products found across all stores:**
+Tell user: "Could not find {product} on any available store. All {N} stores returned errors or no results. Try a different product name or check back later."
+Save report with empty table and failure notes to `{data_dir}/reports/`. EXIT workflow — do not proceed to Steps 5-8.
+
 ## Step 5: Price Analysis
 
 Read [price-analysis.md](../references/price-analysis.md). For each found product:
@@ -83,12 +87,30 @@ Wait for user to confirm choice (number or product name).
 6. Log action to audit-log.md
 
 **FULL mode**:
-1. Same as CART steps 1-5
-2. Check total cost against `purchase_limit_eur` and aggregate limits — if over → BLOCK immediately, do not ask for confirmation
-3. Ask: "Proceed to checkout? Buy {product} for {price} EUR on {store}? [yes/no]"
-4. If confirmed → proceed through checkout (use saved payment method)
-5. `browser_take_screenshot` of confirmation page
-6. Send Telegram notification
+1. Check total cost against `purchase_limit_eur` and aggregate limits — if over → BLOCK immediately, do not proceed
+2. Same as CART steps 1-4 (navigate, select variant, click Add to Cart, screenshot)
+3. Extract current price from cart page via `browser_snapshot`
+4. If price differs from comparison-time price by more than max(2%, 2 EUR) → ABORT, inform user of price change
+5. Generate a random 4-digit confirmation code (1000-9999). Do not reuse codes within session.
+6. Send Telegram OOB confirmation via `mcp__plugin_telegram_telegram__reply`:
+   "PURCHASE CONFIRMATION
+   Product: {product name}
+   Store: {store domain}
+   Price: {total_cost} EUR (incl. delivery)
+   Daily spend after this: {daily_sum + total_cost} / {daily_limit} EUR
+   Monthly spend after this: {monthly_sum + total_cost} / {monthly_limit} EUR
+
+   Reply {code} to confirm. Any other reply = cancel.
+   This code expires in 5 minutes."
+7. Wait for Telegram reply. Poll for incoming Telegram messages. Do NOT proceed with any other actions while waiting.
+   - If reply matches the 4-digit code exactly → proceed to step 8
+   - If reply is anything else → ABORT. Send Telegram: "Purchase cancelled."
+   - If no reply within 5 minutes → ABORT. Send Telegram: "Confirmation expired. Run /buy again."
+   - If price changed since code was generated → invalidate code, ABORT
+8. Proceed through checkout (use saved payment method)
+9. `browser_take_screenshot` of confirmation page
+10. Send Telegram post-purchase notification: "Purchased: {product} for {total_cost} EUR on {store} at {timestamp}"
+11. Log to audit-log.md (via Bash append: `echo "| {timestamp} | {URL} | checkout | OK |" >> {data_dir}/audit-log.md`)
 
 ## Step 8: Save Report & Update History
 

@@ -44,6 +44,8 @@ Read `security_mode` from config.yml. Apply rules for that mode ONLY.
 
 3. **Aggregate spending limits** — read `daily_limit_eur` and `monthly_limit_eur` from config.yml. Before any purchase, sum today's/this month's completed purchases from purchase-history.md. If sum + current total cost > daily or monthly limit → BLOCK. Defaults if not set: daily = purchase_limit_eur * 3, monthly = purchase_limit_eur * 10.
 
+   Only entries with `action: purchased` in purchase-history.md count toward aggregate limits. Entries with `action: carted` are informational only. If purchase-history.md cannot be parsed or contains entries with missing or unparseable prices → treat aggregate as UNKNOWN and BLOCK all purchases (fail-closed). Send Telegram: "Spending data corrupted. Manual review required. No purchases allowed until fixed."
+
 4. **Post-purchase Telegram notification**:
    Send via `mcp__plugin_telegram_telegram__reply`:
    "Purchased: {product} for {total_cost} EUR on {store} at {timestamp}"
@@ -143,10 +145,11 @@ Run BEFORE every `mcp__playwright__browser_navigate` call:
 1. Parse the URL to extract the **hostname** (not just domain substring)
 2. Convert hostname to ASCII punycode before comparison (IDN normalization).
 3. The extracted hostname must **EXACTLY match** one of the whitelisted domains, OR end with `.` followed by a whitelisted domain (e.g., `www.amazon.es` matches `amazon.es`)
+   Only `www.` prefix is expected for store subdomains. If a subdomain other than `www.` is encountered on a store domain, WARN: "Unexpected subdomain: {subdomain}.{domain}. Verify this is legitimate." Log and proceed only if the page content matches expected store layout.
 4. **Reject** if:
    - Hostname merely *contains* the whitelisted string as a substring (e.g., `amazon.es.evil.com` → BLOCK)
    - URL contains userinfo component (`user:pass@host`) → BLOCK
-   - URL uses non-standard port (anything other than 80/443) → BLOCK
+   - URL specifies a port explicitly (anything other than 443) → BLOCK. Port 80 with HTTPS is abnormal and blocked.
 5. Check URL path against banned patterns (per current security mode)
 6. If path matches banned pattern → **BLOCK**
 7. If all checks pass → proceed with navigation
@@ -171,6 +174,11 @@ Run AFTER every `browser_navigate` AND after every `browser_click` that causes p
    - Log: "REDIRECT BLOCKED: intended {url1} → actual {url2}"
 4. If current path matches banned pattern → navigate away immediately
 5. Apply content-based checkout detection (see above)
+
+**Known redirect exceptions** (do not block these):
+- `lens.google.com` → `www.google.com` (Google Lens results page)
+- `www.amazon.es` → `images-eu.ssl-images-amazon.com` (Amazon CDN, read-only)
+Log as "KNOWN_REDIRECT: {from} → {to} → OK". All other cross-hostname redirects: BLOCK as before.
 
 ## Post-Click State Verification
 
