@@ -1,8 +1,6 @@
 # /buy — Shopping Research & Cart Assistant
 
-A [Claude Code](https://claude.ai/code) skill that automates product search, price comparison, and cart management across online stores.
-
-Search by product name, photo, or description. Compare prices with historical data. Get expert-backed recommendations. Add to cart via browser automation. Never touches checkout or payment.
+Search, compare, and buy products across online stores from [Claude Code](https://claude.ai/code). Handles product name, photo, or description. Compares prices with historical data. Adds to cart via browser automation. Never touches checkout without explicit confirmation.
 
 ## Features
 
@@ -17,13 +15,18 @@ Search by product name, photo, or description. Compare prices with historical da
 
 ## Requirements
 
-- [Claude Code](https://claude.ai/code) CLI or desktop app
-- MCP servers:
-  - **Playwright** — browser automation (required)
-  - **Firecrawl** — web scraping fallback (recommended)
-  - **Exa** — semantic search for research (recommended)
-  - **Gmail** — purchase history import (optional)
-  - **Telegram** — recurring purchase reminders (optional)
+[Claude Code](https://claude.ai/code) CLI or desktop app.
+
+**Required MCP:**
+- **Playwright** — browser automation
+
+**Recommended MCP:**
+- **Firecrawl** — web scraping fallback when Playwright blocked
+- **Exa** — semantic search for expert research
+
+**Optional MCP:**
+- **Gmail** — purchase history import from email
+- **Telegram** — recurring purchase reminders, FULL mode confirmation
 
 ## Install
 
