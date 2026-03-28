@@ -95,7 +95,7 @@ At the beginning of each `/buy` invocation (after setup):
 | Response | Action |
 |----------|--------|
 | Product name or "all" | Execute add-to-cart via [search-by-name.md](search-by-name.md) (repeat mode). Update recurring.md: last_purchase, next_reminder. |
-| "skip" / "no" / "later" | Skip this cycle. Update next_reminder = max(next_reminder + frequency, today + 1). |
+| "skip" / "no" / "later" | Skip this cycle. Update next_reminder = max(today + frequency, next_reminder + frequency). This ensures skipping always pushes forward by at least one full frequency period from today. |
 | "postpone {product}" | Set next_reminder = today + 7 days for that product. |
 | "cancel {product}" | Set status = "cancelled" in recurring.md. |
 
@@ -104,6 +104,6 @@ At the beginning of each `/buy` invocation (after setup):
 User can say:
 - "show my recurring" → list all active items with dates and prices
 - "pause {product}" → set status to "paused"
-- "resume {product}" → set status to "active", recalculate next_reminder
+- "resume {product}" → set status to "active", set next_reminder = today + frequency. This ensures the next reminder is always in the future regardless of how long the item was paused.
 - "cancel {product}" → set status to "cancelled"
 - "change frequency {product} to {N} days" → update frequency + next_reminder

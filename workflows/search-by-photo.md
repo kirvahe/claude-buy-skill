@@ -13,7 +13,7 @@
 
 ## Step 2: Google Lens Search
 
-1. "This image will be uploaded to Google Lens for visual search. It may contain location metadata (EXIF data). Google may store it per their privacy policy. Proceed?"
+1. "This image will be uploaded to Google Lens. The ENTIRE image will be processed — including background content (documents, screens, people, home details), not just the product. EXIF metadata may also contain location data. Google may store it per their privacy policy. Alternative: I can describe the product from the photo and search by text (no upload needed). Proceed with upload, or use text search instead?"
 2. `browser_navigate` to `https://lens.google.com/` (validate URL per security-rules.md)
 3. `browser_file_upload` — upload the image file
 4. `browser_wait_for` results to load. Wait up to 15 seconds for results. If timeout → retry once, then fall back to Claude's visual description as search query.

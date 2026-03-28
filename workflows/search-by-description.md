@@ -45,6 +45,8 @@ For each of the 3 candidates → follow search-by-name.md from **Ask Urgency** t
 - User confirms → execute action per security mode
 - Save report + update purchase-history (if CART/FULL mode)
 
+Note: the report saved by search-by-name.md delegation is the primary report. Do NOT save a second report from Step 3 below when using the spec-driven (2A) path.
+
 ### 2A.4: Build Enhanced Comparison Table
 
 | # | Product | Expert Source | Score | Store | Price | Delivery | Total | Rating | Verdict |
@@ -62,6 +64,7 @@ Ask in ONE message (not one by one):
 - Budget range?
 - Specific features, colors, styles?
 - Sizes? (check taste-profile.md for saved sizes)
+- When do you need this? (tomorrow / this week / not urgent)
 
 Skip questions already answered in user's request or taste-profile.
 
@@ -94,12 +97,12 @@ Then: "Pick a number, or say 'screenshot N' to see it closer."
 
 ### 2B.4: User Picks → Complete Flow
 
-User picks a number → follow search-by-name.md from **Price Analysis** through **Save Report & Update History**:
+User picks a number → follow search-by-name.md from **Ask Urgency** through **Save Report & Update History**:
 - Price analysis (always run, even for single chosen product)
 - Comparison (if user wants to see alternatives)
 - Confirm → cart/purchase per security mode
 - Save report + update purchase-history (if CART/FULL mode)
 
-## Step 3: Save Report
+## Step 3: Save Report (taste-driven 2B path only)
 
-Save to `{data_dir}/reports/{query-slug}-YYYY-MM-DD.md`. `query-slug`: lowercase, dashes, max 50 chars, only `[a-z0-9-]` characters. If file exists, append `-2`, `-3`, etc. Include: original query, all research sources consulted, comparison table, final choice, links.
+Save to `{data_dir}/reports/{query-slug}-YYYY-MM-DD.md` only if this workflow used the taste-driven (2B) path. If the spec-driven (2A) path was used, the report was already saved by the search-by-name.md delegation in Step 2A.3. `query-slug`: lowercase, dashes, max 50 chars, only `[a-z0-9-]` characters. If file exists, append `-2`, `-3`, etc. Include: original query, all research sources consulted, comparison table, final choice, links.

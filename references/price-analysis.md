@@ -78,7 +78,7 @@ Example: dish soap 500ml at 3.50 EUR = 7.00 EUR/L vs 1L at 5.99 EUR = 5.99 EUR/L
 When comparing same product across different sellers or stores:
 
 ```
-quality_delta = min(max(5, cheapest_total_cost * 0.10), 50)
+quality_delta = min(max(cheapest_total_cost * 0.20, 1), 50)
 ```
 
 A more expensive option is ACCEPTABLE if:
@@ -90,7 +90,7 @@ A more expensive option is ACCEPTABLE if:
   - More reliable store (known vs unknown seller)
 
 Example: Product is 45 EUR on unknown seller, 49 EUR on Amazon Prime seller (4.8 stars).
-Delta = max(5, 45 * 0.10) = max(5, 4.5) = 5 EUR. Difference = 4 EUR < 5 EUR → recommend Amazon seller.
+Delta = max(45 * 0.20, 1) = max(9, 1) = 9 EUR. Difference = 4 EUR < 9 EUR → recommend Amazon seller.
 
 ## Amazon Seller Filtering
 
