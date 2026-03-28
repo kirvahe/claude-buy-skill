@@ -15,7 +15,11 @@
 | Audit log tampering | Append-only rule + Telegram mirror for critical events |
 | Redirect attacks | Post-navigation hostname check, strict cross-hostname blocking |
 
-All security enforcement is via LLM instructions. A sophisticated prompt injection could theoretically bypass these rules. Mitigations: explicit ignore rules, out-of-band Telegram confirmation for FULL mode, audit log. Future improvement: Claude Code pre-tool-use hooks for programmatic URL validation.
+Security enforcement uses two layers:
+1. **Deterministic hooks** (immune to prompt injection): PreToolUse hooks in `hooks/` validate URLs before `browser_navigate`, block writes to `config.yml`, and protect `audit-log.md` from overwriting. Install via `hooks/install-hooks.sh`.
+2. **LLM instructions** (this document): post-navigation redirect checks, content-based checkout detection, and prompt injection defense. These complement the hooks but can theoretically be bypassed by sophisticated prompt injection.
+
+Both layers together provide genuine defense-in-depth with independent failure modes.
 
 ## Security Modes
 
