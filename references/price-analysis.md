@@ -37,17 +37,17 @@ If Idealo unavailable → set `historical = null`.
 If historical data unavailable:
   verdict = "no history"
 
-If current_price <= historical_minimum * 1.05:
+Else if current_price <= historical_minimum * 1.05:
   verdict = "historical minimum!"
 
-If current_price <= historical_average:
+Else if current_price <= historical_average:
   verdict = "good price"
 
-If current_price > historical_average AND current_price <= historical_average * 1.15:
+Else if current_price <= historical_average * 1.15:
   overpay = current_price - historical_average
   verdict = "slightly above average (+{overpay} EUR)"
 
-If current_price > historical_average * 1.15:
+Else:
   savings = current_price - historical_average
   verdict = "wait — usually {savings} EUR cheaper"
 ```
@@ -60,6 +60,8 @@ When a product has multiple size or quantity variants:
 2. Calculate price per unit (EUR/unit, EUR/kg, EUR/L, etc.)
 3. Note best value variant
 4. Include in comparison table if relevant
+
+Only compare products with the same unit type (e.g., mL vs mL, not mL vs wipes).
 
 Example: dish soap 500ml at 3.50 EUR = 7.00 EUR/L vs 1L at 5.99 EUR = 5.99 EUR/L → recommend 1L.
 
@@ -76,7 +78,7 @@ Example: dish soap 500ml at 3.50 EUR = 7.00 EUR/L vs 1L at 5.99 EUR = 5.99 EUR/L
 When comparing same product across different sellers or stores:
 
 ```
-quality_delta = max(5, cheapest_total_cost * 0.10)
+quality_delta = min(max(5, cheapest_total_cost * 0.10), 50)
 ```
 
 A more expensive option is ACCEPTABLE if:
@@ -101,7 +103,6 @@ Delta = max(5, 45 * 0.10) = max(5, 4.5) = 5 EUR. Difference = 4 EUR < 5 EUR → 
 
 ## Rate Limiting
 
-- 2-5 second pause between requests to same domain
-- Randomize slightly: `2 + random(0, 3)` seconds
+- 2-5 seconds between requests to same domain
 - If rate limited (HTTP 429) → wait 30 seconds, retry once, then skip
 - CamelCamelCamel and Idealo: 3-5 second minimum between requests

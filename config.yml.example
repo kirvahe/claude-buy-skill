@@ -17,6 +17,12 @@ security_mode: cart
 # Max purchase limit per transaction in EUR (only used in FULL mode)
 purchase_limit_eur: 100
 
+# Daily spending limit in EUR (FULL mode only, default: purchase_limit_eur * 3)
+daily_limit_eur: 300
+
+# Monthly spending limit in EUR (FULL mode only, default: purchase_limit_eur * 10)
+monthly_limit_eur: 1000
+
 # Amazon membership: prime / none
 amazon_membership: prime
 

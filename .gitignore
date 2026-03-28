@@ -1,12 +1,12 @@
 # Personal config (created during onboarding, contains user data)
-config.yml
+/config.yml
 
 # User shopping data (created at data_dir path, not in this repo)
-taste-profile.md
-purchase-history.md
-recurring.md
-audit-log.md
-reports/
+/taste-profile.md
+/purchase-history.md
+/recurring.md
+/audit-log.md
+/reports/
 
 # OS files
 .DS_Store
