@@ -33,6 +33,16 @@ git clone https://github.com/kirvahe/claude-buy-skill.git ~/.claude/skills/buy
 
 Run `/buy` for the first time and follow the onboarding prompts (security mode, location, stores, preferences). Config is saved to `config.yml` (gitignored, stays local).
 
+### Security Hooks (recommended)
+
+Install deterministic security hooks that enforce URL whitelist, config immutability, and audit log protection at the Claude Code level — immune to prompt injection:
+
+```bash
+bash ~/.claude/skills/buy/hooks/install-hooks.sh
+```
+
+Then add the displayed JSON to your `~/.claude/settings.json`. See `hooks/install-hooks.sh` for details.
+
 ## Usage
 
 ```
