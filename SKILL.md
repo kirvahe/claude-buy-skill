@@ -29,6 +29,20 @@ allowed-tools: mcp__playwright__browser_navigate, mcp__playwright__browser_snaps
 
 Trigger: config.yml not found. Run blocks in order. Required blocks must complete.
 
+**Welcome — show before any questions:**
+
+> **/buy — your shopping research assistant.**
+>
+> - **Search any way** — product name, photo, or natural language description
+> - **Compare across stores** — prices, delivery, and total cost side by side
+> - **Price history** — CamelCamelCamel + Idealo verdicts: good price, wait, or historical minimum
+> - **Expert research** — Wirecutter picks, Reddit consensus, wine critic scores for "find best" queries
+> - **Recurring purchases** — detects repeat buys, reminds you via Telegram when it's time to reorder
+> - **Safe by design** — Telegram confirmation before every purchase, spending limits, full audit log
+> - **You control access** — three security modes from research-only to full checkout
+>
+> Quick setup below (5 blocks, ~2 min). I'll configure your location, stores, and preferences.
+
 **Block 0 — Security & Location [REQUIRED]**
 Ask: Choose security mode:
 - RESEARCH (safest) — search + compare + links only
