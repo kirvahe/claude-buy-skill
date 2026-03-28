@@ -1,19 +1,10 @@
 # Workflow: Search by Product Name
 
-## Required Reading
-
-Before starting, read these files:
-1. [security-rules.md](../references/security-rules.md) — security policy
-2. [store-routing.md](../references/store-routing.md) — store patterns
-3. [price-analysis.md](../references/price-analysis.md) — price comparison
-4. `{data_dir}/taste-profile.md` — user preferences
-5. `{data_dir}/purchase-history.md` — past purchases
-
 ## Step 1: Parse the Request
 
 From $ARGUMENTS determine:
 - **Product name** (exact or approximate)
-- **Category** (for store selection — see SKILL.md category table)
+- **Category** (for store selection — see [store-routing.md](../references/store-routing.md))
 - **Is this a repeat purchase?** Check purchase-history.md for same or similar product.
 
 If repeat purchase:
@@ -23,8 +14,8 @@ If repeat purchase:
 
 ## Step 2: Determine Store Set
 
-Use category-to-store mapping from SKILL.md.
-Read store-routing.md for store-specific search patterns and URLs.
+Use category-to-store mapping from [store-routing.md](../references/store-routing.md).
+Read [store-routing.md](../references/store-routing.md) for store-specific search patterns and URLs.
 If category ambiguous → search broader store set.
 
 ## Step 3: Ask Urgency
@@ -69,8 +60,8 @@ Read [price-analysis.md](../references/price-analysis.md). For each found produc
 
 Build comparison table per SKILL.md output format:
 
-| # | Product | Store | Price | Delivery | Total | Rating | Price Verdict |
-|---|---------|-------|-------|----------|-------|--------|---------------|
+| # | Product | Store | Price | Delivery | Total | Rating | Seller | Price Verdict |
+|---|---------|-------|-------|----------|-------|--------|--------|---------------|
 
 Recommend #1 with reasoning:
 - **Pick:** #N — {product}
@@ -93,29 +84,17 @@ Wait for user to confirm choice (number or product name).
 
 **FULL mode**:
 1. Same as CART steps 1-5
-2. Ask: "Proceed to checkout? Buy {product} for {price} EUR on {store}? [yes/no]"
-3. Check price against `purchase_limit_eur` — if over → BLOCK
+2. Check total cost against `purchase_limit_eur` and aggregate limits — if over → BLOCK immediately, do not ask for confirmation
+3. Ask: "Proceed to checkout? Buy {product} for {price} EUR on {store}? [yes/no]"
 4. If confirmed → proceed through checkout (use saved payment method)
 5. `browser_take_screenshot` of confirmation page
 6. Send Telegram notification
 
 ## Step 8: Save Report & Update History
 
-1. Save report to `{data_dir}/reports/{query-slug}-YYYY-MM-DD.md` using [report-template.md](../references/report-template.md). If file exists, append sequence number (e.g., `-2`).
+1. Save report to `{data_dir}/reports/{query-slug}-YYYY-MM-DD.md`. `query-slug`: lowercase, dashes, max 50 chars, only `[a-z0-9-]` characters. If file exists, append `-2`, `-3`, etc. Include: original query, stores searched, comparison table, decision + reasoning, links.
 2. **CART or FULL mode only**: add entry to purchase-history.md with action type:
    - `action: carted` (CART mode) or `action: purchased` (FULL mode)
    - Include: product, store, price, date, link, action
    - **RESEARCH mode**: do NOT update purchase-history.md (no purchase occurred)
-3. **Only if action was carted or purchased**: check if this product appears in purchase-history 2+ times (matching by ASIN for Amazon, or normalized URL for others) → suggest recurring: "You've bought this before. Set up recurring?" → [recurring-purchase.md](recurring-purchase.md)
-
-## Success Criteria
-
-- [ ] Product searched on 2+ stores (or noted why not)
-- [ ] Price analysis with historical data attempted
-- [ ] Total cost (price + delivery) shown for all options
-- [ ] Comparison table delivered in chat
-- [ ] Recommendation with reasoning
-- [ ] User confirmed before any action
-- [ ] Action matches security mode (link / cart / purchase)
-- [ ] Audit log updated
-- [ ] Report saved
+3. **Only if action was carted or purchased AND product does not already exist in recurring.md**: check if this product appears in purchase-history 2+ times (matching by ASIN for Amazon, or by stripping query parameters and normalizing hostname (www. prefix) for others) → suggest recurring: "You've bought this before. Set up recurring?" → [recurring-purchase.md](recurring-purchase.md)

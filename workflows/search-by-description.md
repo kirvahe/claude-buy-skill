@@ -1,13 +1,5 @@
 # Workflow: Search by Description (Deep Research)
 
-## Required Reading
-
-1. [security-rules.md](../references/security-rules.md)
-2. [review-sources.md](../references/review-sources.md) — expert sources by category
-3. [store-routing.md](../references/store-routing.md)
-4. [price-analysis.md](../references/price-analysis.md)
-5. `{data_dir}/taste-profile.md`
-
 ## Step 1: Determine Selection Scenario
 
 **Spec-driven** — user provides specs, budget, or measurable criteria:
@@ -27,8 +19,8 @@
 Read [review-sources.md](../references/review-sources.md) for source list per category.
 
 **ALWAYS check** (for any "find best" / "recommend" query):
-1. **Wirecutter (NYT)**: `mcp__exa__web_search_exa` or WebSearch with `site:nytimes.com/wirecutter best {product category}`
-2. **Reddit**: WebSearch with `site:reddit.com {product category} recommendation best {current year}`
+1. **Wirecutter (NYT)**: `mcp__exa__web_search_exa` with `site:nytimes.com/wirecutter best {product category}`
+2. **Reddit**: `mcp__exa__web_search_exa` with `site:reddit.com {product category} recommendation best {current year}`
 3. **Serious Eats** (kitchen/food items): `site:seriouseats.com best {product}`
 
 **For wine**: follow critic whitelist and search patterns in [review-sources.md](../references/review-sources.md). NO bloggers, NO influencers.
@@ -110,14 +102,4 @@ User picks a number → follow search-by-name.md from **Price Analysis** through
 
 ## Step 3: Save Report
 
-Save to `{data_dir}/reports/` using [report-template.md](../references/report-template.md).
-Include: original query, all research sources consulted, comparison table, final choice.
-
-## Success Criteria
-
-- [ ] Expert sources consulted (Wirecutter + Reddit minimum for "find best")
-- [ ] 3 candidates identified with reasoning
-- [ ] Comparison table with price analysis
-- [ ] Recommendation with expert-backed reasoning
-- [ ] User confirmed before any action
-- [ ] Report saved with full research trail
+Save to `{data_dir}/reports/{query-slug}-YYYY-MM-DD.md`. `query-slug`: lowercase, dashes, max 50 chars, only `[a-z0-9-]` characters. If file exists, append `-2`, `-3`, etc. Include: original query, all research sources consulted, comparison table, final choice, links.

@@ -3,7 +3,7 @@ name: buy
 description: Search, compare, and add products to cart via Playwright across configurable store whitelist. Handles product search by name, photo, or description. Performs price analysis with historical data, expert research (Wirecutter, Reddit, wine critics), and manages recurring purchases. Use when the user wants to buy something, find a product, compare prices, reorder, or asks about shopping.
 argument-hint: [product name, photo, or description]
 disable-model-invocation: true
-allowed-tools: mcp__playwright__*, mcp__firecrawl__*, mcp__exa__*, mcp__claude_ai_Gmail__*, mcp__plugin_telegram_telegram__*, Read, Write, Bash, Glob, Grep
+allowed-tools: mcp__playwright__browser_navigate, mcp__playwright__browser_snapshot, mcp__playwright__browser_click, mcp__playwright__browser_fill_form, mcp__playwright__browser_take_screenshot, mcp__playwright__browser_file_upload, mcp__playwright__browser_wait_for, mcp__playwright__browser_tabs, mcp__playwright__browser_navigate_back, mcp__playwright__browser_select_option, mcp__playwright__browser_press_key, mcp__firecrawl__firecrawl_scrape, mcp__firecrawl__firecrawl_search, mcp__exa__web_search_exa, mcp__exa__get_code_context_exa, mcp__plugin_telegram_telegram__reply, mcp__plugin_telegram_telegram__react, Read, Write, Bash, Glob, Grep
 ---
 
 # /buy — Shopping Research & Cart Assistant
@@ -13,9 +13,11 @@ allowed-tools: mcp__playwright__*, mcp__firecrawl__*, mcp__exa__*, mcp__claude_a
 1. Read `~/.claude/skills/buy/config.yml`
 2. If config.yml NOT found → run **Onboarding** (see below)
 3. If config.yml found but incomplete → resume from first incomplete required block
-4. Load config: `data_dir`, `country`, `security_mode`, `stores`
-5. Read `{data_dir}/taste-profile.md` (if exists)
-6. Read `{data_dir}/purchase-history.md` (if exists)
+4. If config.yml exists and contains all required fields (`country`, `home_city`, `data_dir`, `security_mode`) → skip onboarding entirely. This allows headless/scheduled invocations.
+5. Load config: `data_dir`, `country`, `security_mode`, `stores`. Expand `~` in `data_dir` to absolute path.
+6. Read `{data_dir}/taste-profile.md` (if exists)
+7. Read `{data_dir}/purchase-history.md` (if exists)
+8. Read `{data_dir}/recurring.md` (if exists). If any items have `next_reminder <= today` AND `status = active` → run Session Start Check from [recurring-purchase.md](workflows/recurring-purchase.md) before proceeding to Routing. Cap: check at most 5 items per session; if more are due, list count and let user choose.
 
 ## Onboarding (first run only)
 
@@ -27,6 +29,7 @@ Ask: Choose security mode:
 - CART (balanced) — search + compare + add to cart. Never checkout.
 - FULL (advanced) — everything including checkout. Requires confirmation per purchase.
 If FULL: ask max purchase limit (e.g. 100EUR), recommend Telegram notifications.
+If FULL mode chosen → Telegram will be required (Block 3). If user later declines Telegram → auto-downgrade to CART mode with warning.
 Ask: Country? City?
 **Create** config.yml with: `security_mode`, `purchase_limit_eur`, `country`, `home_city`.
 Load store preset from [store-routing.md](references/store-routing.md).
@@ -35,6 +38,7 @@ Load store preset from [store-routing.md](references/store-routing.md).
 Ask: Amazon Prime? Other subscriptions (Glovo, Getir)?
 Show country preset stores. "Remove any? Add others?"
 Finalize whitelist in config.yml. Create `data_dir` directory.
+Validate `data_dir`: must be absolute path (expand `~`), must not be a dotfile directory (`~/.`), must not be inside `~/.claude/skills/buy/`, must not be a system directory (`/`, `/etc`, `/var`). If invalid → ask again.
 Create empty data files: `taste-profile.md`, `purchase-history.md`, `recurring.md`, `audit-log.md`.
 
 **Block 2 — Preferences [REQUIRED]**
@@ -44,12 +48,9 @@ Create `{data_dir}/taste-profile.md`.
 **Block 3 — Telegram [OPTIONAL]**
 Ask: Recurring reminders via Telegram? If yes: chat_id.
 Save to config.yml. Skip → recurring reminders disabled.
+Note: If security_mode is FULL and user declines Telegram here → auto-downgrade to CART mode with warning.
 
-**Block 4 — Gmail Import [OPTIONAL]**
-Ask: Import purchase history from Gmail?
-If yes: search order confirmations → populate `{data_dir}/purchase-history.md`.
-
-**Block 5 — Sizes [OPTIONAL]**
+**Block 4 — Sizes [OPTIONAL]**
 Ask: Clothing sizes (EU/US/UK, tops, bottoms)? Shoe size? Fit preferences?
 Add to taste-profile.md.
 
@@ -68,18 +69,36 @@ Post-onboarding: show summary, skill ready.
 
 ## Essential Principles
 
-1. **Security mode is law** — read `security_mode` from config.yml. Follow [security-rules.md](references/security-rules.md) exactly. No deviation.
-2. **Whitelisted domains only** — stores from config + service domains. New store → ask user "add permanently?"
-3. **Total cost = price + delivery** — always compare totals, never base price alone.
-4. **Amazon minimum 3.5 stars** — filter out lower-rated products.
-5. **Taste profile first** — read before every action. Respect brand blacklist and preferences.
-6. **Audit every Playwright action** — append to `{data_dir}/audit-log.md`.
-7. **Response language = request language**.
-8. **User confirms before cart/purchase** — never add to cart or buy without explicit confirmation.
+1. **Security policy is law** — read [security-rules.md](references/security-rules.md) before ANY Playwright action. No deviation.
+2. **Total cost = price + delivery** — always compare totals, never base price alone.
+3. **Amazon minimum 3.5 stars** — filter out lower-rated products.
+4. **Taste profile first** — read before every action. Respect brand blacklist and preferences.
+5. **Response language = request language**.
+
+## Tool Availability
+
+If a recommended MCP is unavailable:
+- **Firecrawl unavailable** + Playwright blocked → skip store, note "could not access {store}"
+- **Exa unavailable** → skip expert research, note "Expert sources not checked (Exa not installed)" in report
+- **Telegram unavailable** + FULL mode → refuse checkout (Telegram mandatory for FULL)
+- **Telegram unavailable** + CART/RESEARCH → proceed normally, recurring reminders shown in chat only
+
+Concurrent `/buy` sessions sharing the same `data_dir` are not supported — data files may be corrupted by parallel writes.
+
+## Argument Parsing
+
+Optional flags (parsed from $ARGUMENTS before routing):
+- `--urgency tomorrow|week|none` — skip urgency question
+- `--mode research|cart|full` — override security_mode for this session only
+- `--check-recurring` — run only Session Start Check, then exit
+
+Remaining $ARGUMENTS after flag extraction are the product query.
 
 ## Routing
 
-Determine workflow from $ARGUMENTS and context:
+Determine workflow from $ARGUMENTS and context.
+
+Note: When routing to any workflow, also load [search-by-name.md](workflows/search-by-name.md) into context alongside the primary workflow — it contains the shared executor steps for price comparison and cart actions.
 
 **Photo in chat** (image file path) → [search-by-photo.md](workflows/search-by-photo.md)
 
@@ -102,8 +121,8 @@ Read [store-routing.md](references/store-routing.md) for full category-to-store 
 
 ### Comparison table (always in chat)
 
-| # | Product | Store | Price | Delivery | Total | Rating | Price Verdict |
-|---|---------|-------|-------|----------|-------|--------|---------------|
+| # | Product | Store | Price | Delivery | Total | Rating | Seller | Price Verdict |
+|---|---------|-------|-------|----------|-------|--------|--------|---------------|
 
 Price verdict values: "good price" / "wait — usually X EUR cheaper" / "historical minimum!" / "no history"
 
@@ -113,21 +132,23 @@ Price verdict values: "good price" / "wait — usually X EUR cheaper" / "histori
 - **Alternatives:** brief note
 
 ### After response
-1. Save report to `{data_dir}/reports/{query-slug}-YYYY-MM-DD.md` — format in [report-template.md](references/report-template.md)
+1. Save report to `{data_dir}/reports/{query-slug}-YYYY-MM-DD.md`. `query-slug`: lowercase, dashes, max 50 chars, only `[a-z0-9-]` characters. If file exists, append `-2`, `-3`, etc. Include: original query, category, urgency, stores searched, expert sources + findings, comparison table, decision + reasoning, direct links.
 2. Update purchase-history.md after confirmed cart/purchase
 3. Check if recurring candidate → suggest [recurring-purchase.md](workflows/recurring-purchase.md)
 
 ## Error Handling & Rate Limiting
 
-| Situation | Action |
-|-----------|--------|
-| Playwright blocked (CAPTCHA, 403) | Fallback to Firecrawl scrape. Both fail → skip store |
-| CamelCamelCamel/Idealo unavailable | Skip, note "price history unavailable" |
-| Product not found on store | Skip store, note in report |
-| Login session expired | Tell user: "Session expired on {store}. Please log in manually." |
-| Redirect to unknown domain | BLOCK. Do NOT follow. Log attempt. |
-| Store not in whitelist | Ask: "Add {store} permanently?" |
-| Rate limiting (429) | Wait 30s, retry once, then skip |
+| Situation | Error Code | Action |
+|-----------|------------|--------|
+| Playwright blocked (CAPTCHA, 403) | STORE_BLOCKED | Fallback to Firecrawl scrape. Both fail → skip store |
+| CamelCamelCamel/Idealo unavailable | RATE_LIMITED | Skip, note "price history unavailable" |
+| Product not found on store | PRODUCT_NOT_FOUND | Skip store, note in report |
+| Login session expired | LOGIN_EXPIRED | Tell user: "Session expired on {store}. Please log in manually." |
+| Redirect to unknown domain | STORE_BLOCKED | BLOCK. Do NOT follow. Log attempt. |
+| Store not in whitelist | CONFIG_MISSING | Show domain prominently: "You are about to whitelist **{domain}**. This will be trusted for navigation. Confirm the domain is correct." If domain is similar to an existing whitelisted domain (Levenshtein distance <= 3), warn about possible typosquat. |
+| Rate limiting (429) | RATE_LIMITED | Wait 30s, retry once, then skip |
+| Price exceeds purchase_limit_eur | PRICE_OVER_LIMIT | Warn user, do not proceed to cart/checkout without explicit override |
+| Required config field missing | CONFIG_MISSING | Re-run relevant onboarding block |
 
 Rate limiting: 2-5 second pause between requests to same domain.
 

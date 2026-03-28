@@ -18,22 +18,7 @@ Load preset based on `country` in config.yml. Custom stores from config `stores:
 | Leroy Merlin | leroymerlin.es | `https://www.leroymerlin.es/buscador?query={query}` | home, tools | DIY and home improvement |
 | IKEA | ikea.com | `https://www.ikea.com/es/es/search/?q={query}` | furniture, home | May prompt for zip code |
 
-### US — United States (stub for contributors)
-
-| Store | Domain | Search URL | Category |
-|-------|--------|-----------|----------|
-| Amazon.com | amazon.com | `https://www.amazon.com/s?k={query}` | general |
-| Best Buy | bestbuy.com | `https://www.bestbuy.com/site/searchpage.jsp?st={query}` | electronics |
-| Target | target.com | `https://www.target.com/s?searchTerm={query}` | general |
-| Walmart | walmart.com | `https://www.walmart.com/search?q={query}` | general |
-
-### DE — Germany (stub for contributors)
-
-| Store | Domain | Search URL | Category |
-|-------|--------|-----------|----------|
-| Amazon.de | amazon.de | `https://www.amazon.de/s?k={query}` | general |
-| Otto | otto.de | `https://www.otto.de/suche/{query}` | general |
-| MediaMarkt.de | mediamarkt.de | `https://www.mediamarkt.de/de/search.html?query={query}` | electronics |
+To add a new country, copy the ES section above as a template. See README for contributing guidelines.
 
 ## Category to Store Mapping
 

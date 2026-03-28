@@ -1,13 +1,5 @@
 # Workflow: Recurring Purchases
 
-## Required Reading
-
-1. [security-rules.md](../references/security-rules.md)
-2. `{data_dir}/purchase-history.md`
-3. `{data_dir}/recurring.md`
-4. `{data_dir}/taste-profile.md`
-5. config.yml — for `telegram_chat_id` and `security_mode`
-
 ## Detection (passive — runs after any purchase)
 
 After any add-to-cart or purchase via other workflows:
@@ -86,7 +78,8 @@ At the beginning of each `/buy` invocation (after setup):
 3. If found:
    a. Quick price check via Firecrawl for each due item
    b. Update `current_price` in recurring.md
-   c. Present to user in chat: "You have {N} recurring items due:"
+   c. Compare product title from page against stored product name. If significantly different → warn: "Product at this URL may have changed. Was: **{stored name}**, Now: **{page title}**. Skip this item?"
+   d. Present to user in chat: "You have {N} recurring items due:"
 
 **Normal price** (within 20% of setup price):
 "- **{product}**: {X} EUR (was {Y} EUR at setup)"
@@ -102,20 +95,9 @@ At the beginning of each `/buy` invocation (after setup):
 | Response | Action |
 |----------|--------|
 | Product name or "all" | Execute add-to-cart via [search-by-name.md](search-by-name.md) (repeat mode). Update recurring.md: last_purchase, next_reminder. |
-| "skip" / "no" / "later" | Skip this cycle. Update next_reminder = today + frequency. |
+| "skip" / "no" / "later" | Skip this cycle. Update next_reminder = max(next_reminder + frequency, today + 1). |
 | "postpone {product}" | Set next_reminder = today + 7 days for that product. |
 | "cancel {product}" | Set status = "cancelled" in recurring.md. |
-
-## Consumption Pattern Learning
-
-When saving a recurring entry AND purchase-history has 3+ orders of this product:
-
-1. Calculate actual average interval between purchases
-2. Compare with user-set frequency
-3. If difference > 20%:
-   - Faster → suggest: "You reorder every ~{actual} days, but reminder is set for {set}. Shorten?"
-   - Slower → suggest: "You reorder every ~{actual} days, but reminder is set for {set}. Extend?"
-4. Update frequency only if user confirms
 
 ## Managing Recurring Items
 
@@ -125,12 +107,3 @@ User can say:
 - "resume {product}" → set status to "active", recalculate next_reminder
 - "cancel {product}" → set status to "cancelled"
 - "change frequency {product} to {N} days" → update frequency + next_reminder
-
-## Success Criteria
-
-- [ ] Recurring product correctly identified
-- [ ] Frequency confirmed (or suggested from history)
-- [ ] Subscribe & Save checked for Amazon products
-- [ ] Entry saved to recurring.md
-- [ ] Session Start Check implemented (primary mechanism)
-- [ ] Telegram notification sent if configured
