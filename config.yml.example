@@ -1,0 +1,31 @@
+# /buy Skill Configuration
+# Copy this file to config.yml and fill in your details.
+# config.yml is gitignored — your personal data stays local.
+
+# Country determines the default store preset (ES, US, DE, FR, UK)
+country: ES
+
+# Your city — used for delivery estimates and store availability
+home_city: Madrid
+
+# Where to store your shopping data (taste profile, purchase history, reports)
+data_dir: ~/Documents/my-shopping-data
+
+# Security mode: research (links only) / cart (add to cart) / full (checkout+payment)
+security_mode: cart
+
+# Max purchase limit per transaction in EUR (only used in FULL mode)
+purchase_limit_eur: 100
+
+# Amazon membership: prime / none
+amazon_membership: prime
+
+# Telegram chat_id for recurring purchase reminders (optional, set during onboarding)
+telegram_chat_id: null
+
+# Custom stores to add beyond the country preset (optional)
+# stores:
+#   - domain: example.com
+#     name: Example Store
+#     search_url: https://example.com/search?q={query}
+#     category: general
