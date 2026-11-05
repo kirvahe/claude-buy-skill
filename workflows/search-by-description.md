@@ -20,12 +20,12 @@ Read [review-sources.md](../references/review-sources.md) for source list per ca
 
 **ALWAYS check** (for any "find best" / "recommend" query):
 1. **Wirecutter (NYT)**: `mcp__exa__web_search_exa` with `site:nytimes.com/wirecutter best {product category}`
-2. **Reddit**: `mcp__exa__web_search_exa` with `site:reddit.com {product category} recommendation best {current year}`
+2. **Reddit**: find threads with `mcp__firecrawl__firecrawl_search` and `site:reddit.com {product category} recommendation best {current year}` (Exa returns no Reddit threads), then read them in full per the Reddit Synthesis Pattern in [review-sources.md](../references/review-sources.md)
 3. **Serious Eats** (kitchen/food items): `site:seriouseats.com best {product}`
 
 **For wine**: follow critic whitelist and search patterns in [review-sources.md](../references/review-sources.md). NO bloggers, NO influencers.
 
-For found articles: use `mcp__firecrawl__firecrawl_scrape` or `mcp__exa__web_search_exa` to extract recommended models, pros/cons, price points.
+For found articles: use `mcp__firecrawl__firecrawl_scrape` or `mcp__exa__web_search_exa` to extract recommended models, pros/cons, price points. Not for Reddit: both tools are blocked there.
 
 ### 2A.2: Synthesize Research
 

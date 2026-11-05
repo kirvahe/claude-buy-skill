@@ -3,7 +3,7 @@ name: buy
 description: Search, compare, and add products to cart via Playwright across configurable store whitelist. Handles product search by name, photo, or description. Performs price analysis with historical data, expert research (Wirecutter, Reddit, wine critics), and manages recurring purchases. Use when the user wants to buy something, find a product, compare prices, reorder, or asks about shopping.
 argument-hint: [product name, photo, or description]
 disable-model-invocation: true
-allowed-tools: mcp__playwright__browser_navigate, mcp__playwright__browser_snapshot, mcp__playwright__browser_click, mcp__playwright__browser_fill_form, mcp__playwright__browser_take_screenshot, mcp__playwright__browser_file_upload, mcp__playwright__browser_wait_for, mcp__playwright__browser_tabs, mcp__playwright__browser_navigate_back, mcp__playwright__browser_select_option, mcp__playwright__browser_press_key, mcp__firecrawl__firecrawl_scrape, mcp__firecrawl__firecrawl_search, mcp__exa__web_search_exa, mcp__exa__get_code_context_exa, mcp__plugin_telegram_telegram__reply, mcp__plugin_telegram_telegram__react, Read, Write, Bash, Glob, Grep
+allowed-tools: mcp__playwright__browser_navigate, mcp__playwright__browser_snapshot, mcp__playwright__browser_click, mcp__playwright__browser_fill_form, mcp__playwright__browser_take_screenshot, mcp__playwright__browser_file_upload, mcp__playwright__browser_wait_for, mcp__playwright__browser_tabs, mcp__playwright__browser_navigate_back, mcp__playwright__browser_select_option, mcp__playwright__browser_press_key, mcp__firecrawl__firecrawl_scrape, mcp__firecrawl__firecrawl_search, mcp__exa__web_search_exa, mcp__plugin_telegram_telegram__reply, mcp__plugin_telegram_telegram__react, Read, Write, Bash, Glob, Grep
 ---
 
 # /buy — Shopping Research & Cart Assistant
@@ -17,6 +17,7 @@ allowed-tools: mcp__playwright__browser_navigate, mcp__playwright__browser_snaps
    - If `security_mode` = FULL AND `telegram_chat_id` is null or missing → resume onboarding from Block 3
    - Otherwise → skip onboarding entirely. This allows headless/scheduled invocations.
 5. Load config: `data_dir`, `country`, `security_mode`, `stores`. Expand `~` in `data_dir` to absolute path.
+   Check that `~/.claude/hooks/buy-validate-url.py` exists. If it does not, say that the deterministic hook layer is not installed (`bash hooks/install-hooks.sh`, then merge the printed PreToolUse block into settings.json) and run this session in RESEARCH mode regardless of `security_mode`.
 6. Read `{data_dir}/taste-profile.md` (if exists)
 7. Read `{data_dir}/purchase-history.md` (if exists)
 8. Read `{data_dir}/recurring.md` (if exists). If any items have `next_reminder <= today` AND `status = active` → run Session Start Check from [recurring-purchase.md](workflows/recurring-purchase.md) before proceeding to Routing. Cap: check at most 5 items per session. If more are due:

@@ -6,7 +6,7 @@
 
 | Threat | Mitigation |
 |--------|-----------|
-| Navigate to malicious domain | Exact hostname whitelist, HTTPS-only, IDN normalization |
+| Navigate to malicious domain | Exact hostname whitelist, HTTPS-only, non-ASCII hostnames blocked |
 | Checkout/purchase without consent | Security mode gating + content-based detection + post-click verification |
 | Prompt injection from product pages | Explicit ignore rules + config immutability + Telegram OOB confirmation |
 | Credential exposure | Persistent sessions only, no password storage, login form detection |
@@ -147,7 +147,7 @@ Run BEFORE every `mcp__playwright__browser_navigate` call:
 
 0. Only `https://` scheme is allowed. Block `http://`, `file://`, `ftp://`, `data:`, `javascript:`, `blob:`, and all other schemes.
 1. Parse the URL to extract the **hostname** (not just domain substring)
-2. Convert hostname to ASCII punycode before comparison (IDN normalization).
+2. Non-ASCII (IDN) hostnames are blocked outright — the hook denies them before any comparison; do not punycode-normalize and retry.
 3. The extracted hostname must **EXACTLY match** one of the whitelisted domains, OR end with `.` followed by a whitelisted domain (e.g., `www.amazon.es` matches `amazon.es`)
    Only `www.` prefix is expected for store subdomains. If a subdomain other than `www.` is encountered on a store domain, WARN: "Unexpected subdomain: {subdomain}.{domain}. Verify this is legitimate." Log and proceed only if the page content matches expected store layout.
 4. **Reject** if:
@@ -222,6 +222,4 @@ When audit-log.md exceeds 500 entries, suggest to user: "Audit log is large. Arc
 
 ## Google Lens Privacy
 
-Before uploading an image to Google Lens, inform the user:
-"This image will be uploaded to Google Lens for visual search. Google may store it per their privacy policy. Note: image metadata (EXIF) may contain location and device info. Proceed?"
-Wait for confirmation. If user declines → skip Google Lens, use Claude's description as search query instead.
+Before uploading an image to Google Lens, show the warning from search-by-photo.md Step 2 (the whole image is processed, background included; EXIF may carry location; offer the text-search alternative) and wait for confirmation. If the user declines → skip Google Lens and use Claude's description as the search query.

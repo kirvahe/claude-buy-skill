@@ -56,7 +56,7 @@ Read [price-analysis.md](../references/price-analysis.md). For each found produc
 2. **Total cost** = price + delivery fee
 3. **Per-unit price** if product has size/quantity variants
 4. **Subscribe & Save** check (Amazon only) — note discount if available
-5. **Quality delta**: max(5 EUR, price * 0.10) — acceptable premium for better seller/Prime/faster delivery
+5. **Quality delta** — formula and example in price-analysis.md (acceptable premium for a better seller, Prime or faster delivery)
 6. **Amazon seller filtering**: prefer higher-rated sellers within quality delta, exclude products < 3.5 stars
 7. **Price verdict**: "good price" / "wait" / "historical minimum!" / "no history"
 
