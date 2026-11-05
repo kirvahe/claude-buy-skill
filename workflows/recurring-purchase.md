@@ -67,7 +67,7 @@ Calculate `next_reminder` = last_purchase + frequency. Save to recurring.md.
 
 **How reminders work**: reminders are checked at the start of each `/buy` invocation (see Session Start Check below). Claude Code is session-based — there is no background scheduler. If Telegram is configured, a notification is sent during the session check.
 
-**Future**: for autonomous scheduled reminders, use Claude Code `/schedule` to create a recurring trigger that runs `/buy check-recurring` daily.
+For autonomous reminders, a `/schedule` routine can run `/buy --check-recurring` daily.
 
 ## Session Start Check (primary reminder mechanism)
 

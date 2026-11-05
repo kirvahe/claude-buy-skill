@@ -38,11 +38,11 @@ Parker 90+ = very good. Parker 95+ = exceptional.
 
 ## Reddit Synthesis Pattern
 
-1. Search: `site:reddit.com {product category} best recommendation {year}`
+1. Search: `site:reddit.com {product category} best recommendation {year}` via `mcp__firecrawl__firecrawl_search` (Exa and WebSearch return no Reddit threads)
 2. Also try: `site:reddit.com {product category} vs` (comparison threads)
-3. Read top 3-5 threads by relevance
+3. Read 5–10 threads in full — comments with scores, not search snippets (snippets are not Reddit data). Use the `reddit-research` skill if installed; otherwise fetch each thread's whole comment tree from the Arctic Shift archive: `curl -s "https://arctic-shift.photon-reddit.com/api/comments/tree?link_id={post_id}&limit=9999"` (post id = the part after `/comments/` in the URL). reddit.com itself blocks scripts and scrapers.
 4. Synthesize:
-   - Most recommended products (mentioned 3+ times across threads)
+   - Most recommended products (mentioned 3+ times across threads, weighted by comment score)
    - Common pros per product
    - Common cons per product
    - Red flags mentioned by community
